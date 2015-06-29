@@ -37,6 +37,12 @@ pip install /path/to/hesiod53
 
 ### Usage
 
+Highly suggested to use `--dry-run` first before actually running the command. This will show you what DNS will be altered on AWS Route53.
+
+    hesiod53 --dry-run USER_FILE
+
+To actually commit your changes to AWS Route53 simply leave off the `--dry-run` option.
+
     hesiod53 USER_FILE
 
 Run `hesiod53 -h` for full usage instructions.
