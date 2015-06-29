@@ -2,7 +2,7 @@
 
 from setuptools import setup, find_packages
 
-readme = open('README.md').read()
+readme = open('README.rst').read()
 
 install_requires = [
     "boto>=2.27.0",
@@ -20,6 +20,19 @@ setup(
     url='https://github.com/fullcontact/hesiod53',
     packages=find_packages(),
     include_package_data=True,
+    license='MIT',
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
+        'Intended Audience :: System Administrators',
+        'Topic :: System :: Systems Administration :: Authentication/Directory',
+        'Operating System :: POSIX :: Linux',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+    ],
+    keywords='ssh ',
     install_requires=install_requires,
     entry_points={
         'console_scripts': [
