@@ -1,0 +1,43 @@
+---
+
+# the route53 zone to manage
+route53_zone: example.com
+
+# the domain under which hesiod data should be placed
+hesiod_domain: hesiod.example.com
+
+# All groups that should go into hesiod
+#
+# name: unique group name
+# gid: unique group ID
+groups:
+  # provides sudo access
+  # like wheel, but that group might already exist locally, and we want a
+  # consistent group ID
+  - name: admins
+    gid: 3000
+  - name: developers
+    gid: 3001
+
+# All users that should go into hesiod
+#
+# name: full name of the user, goes into the GECOS field
+# username: unique username
+# uid: unique userid
+# groups: a list of groups; at least one is required, and the first group will
+#   be the user's primary group
+# homedir: optional home directory; defaults to /home/{username}
+# shell: optional shell; defaults to /bin/bash
+# ssh_keys: a list of ssh keys to use; any line that could go in
+#   authorizerd_keys is valid
+users:
+  - name: Tommy Tester
+    username: ttester
+    uid: 5000
+    groups:
+      - admins
+      - developers
+    homedir: /home/ttester
+    shell: /bin/bash
+    ssh_keys:
+      - ssh-dss KEY_GOES_HERE
