@@ -6,7 +6,7 @@ and Kerberos with Route53, which is much easier to manage.
 
 User and group management is done with
 [Hesiod](https://en.wikipedia.org/wiki/Hesiod_(name_service)). This repository
-includes a synchronization tool that configrues a Route53 domain with the
+includes a synchronization tool that configures a Route53 domain with the
 necssary DNS entries based on a YAML file.
 
 For ssh keys, an `AuthorizedKeysCommand` helper is included so that ssh public
@@ -14,6 +14,16 @@ keys can also be stored in DNS. When an ssh client tries to connect using
 public key authentication, the helper will query DNS for the proper ssh keys,
 which it then provides to the OpenSSH daemon. This replaces individual
 `authorized_keys` files for each user.
+
+# Useful Tools
+
+In addition to this library you might find the below useful.
+
+To see how to setup your server to use Hesiod53 DNS for authentication.
+* [Ansible role](https://github.com/fullcontact/ansible-hesiod)
+
+To create a yml dump from a Jumpcloud directory
+* [Jumpcloud](https://github.com/fullcontact/hesiod53-jumpcloud)
 
 ## Route53 Sync
 
