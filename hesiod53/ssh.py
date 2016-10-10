@@ -1,36 +1,26 @@
 #!/usr/bin/env python
+
 import argparse
 import dns.resolver
 import time
 
-# Meant for handling dns query failures
-def retry(func, max_retries=3):
-   def func_wrapper(*args, **kwargs):
-        for attempt in range(0, max_retries):
-            try:
-                return func(*args, **kwargs)
-            except:
-                time.sleep(0.1)
-        return
-   return func_wrapper
-
-def concatenate_txt_record(answers):
+def fetch_ssh_keys(username, hesiod_domain, tries=3):
+    fqdn = username + ".ssh." + hesiod_domain
     results = []
-    for rdata in answers:
-        results.append("".join(rdata.strings))
+
+    try:
+        # use TCP because ssh keys are too big for UDP anyways, so we'll back
+        # off and try TCP eventually anyways
+        answers = dns.resolver.query(fqdn, "TXT", tcp=True)
+        for rdata in answers:
+            results.append("".join(rdata.strings))
+    except:
+        # retry, in case of dns failure
+        if tries > 1:
+            time.sleep(0.3)
+            return fetch_ssh_keys(username, hesiod_domain, tries - 1)
+
     return results
-
-@retry
-def fetch_ssh_key_count(username, hesiod_domain):
-    fqdn = "{username}.count.ssh.{domain}".format(username=username, domain=hesiod_domain)
-    answers = dns.resolver.query(fqdn, "TXT", tcp=True)
-    return int(concatenate_txt_record(answers)[0])
-
-@retry
-def fetch_ssh_key(username, hesiod_domain, _id):
-    fqdn = "{username}.{id}.ssh.{domain}".format(username=username, id=_id, domain=hesiod_domain)
-    answers = dns.resolver.query(fqdn, "TXT", tcp=True)
-    return concatenate_txt_record(answers)
 
 def find_hesiod_domain(hesiod_conf_file):
     lhs = None
@@ -68,9 +58,8 @@ def main():
     username = args.username
     hesiod_domain = find_hesiod_domain(args.hesiod_conf_file)
 
-    for _id in range(0, fetch_ssh_key_count(username, hesiod_domain)):
-        for key in fetch_ssh_key(username, hesiod_domain, _id):
-            print key
+    for key in fetch_ssh_keys(username, hesiod_domain):
+        print key
 
 if __name__ == "__main__":
     main()
