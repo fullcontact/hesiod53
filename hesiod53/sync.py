@@ -10,7 +10,7 @@ import time
 import yaml
 
 # a DNS record for hesiod
-# fqdn should include the trailing .
+# fqdn should includ the trailing .
 # value should contain the value without quotes
 DNSRecord = namedtuple("DNSRecord", "fqdn value")
 
@@ -123,17 +123,10 @@ class User(object):
         records.append(DNSRecord(fqdn, ":".join(gl)))
 
         # ssh records
-        if self.ssh_keys:
-            ssh_keys_count_fqdn = "%s.count.ssh.%s" % (self.username, hesiod_domain)
-            records.append(DNSRecord(ssh_keys_count_fqdn, str(len(self.ssh_keys))))
+        for ssh_key in self.ssh_keys:
+            fqdn = "%s.ssh.%s" % (self.username, hesiod_domain)
+            records.append(DNSRecord(fqdn, ssh_key))
 
-            # Need to keep this around for backwards compatibility when only one ssh key worked
-            legacy_ssh_key_fqdn = "%s.ssh.%s" % (self.username, hesiod_domain)
-            records.append(DNSRecord(legacy_ssh_key_fqdn, self.ssh_keys[0]))
-
-            for _id, ssh_key in enumerate(self.ssh_keys):
-                ssh_key_fqdn = "%s.%s.ssh.%s" % (self.username, _id, hesiod_domain)
-                records.append(DNSRecord(ssh_key_fqdn, ssh_key))
         return records
 
     def passwd_line(self):
