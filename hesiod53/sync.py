@@ -41,11 +41,11 @@ class Group(object):
 
         # group record
         fqdn = "%s.group.%s" % (self.name, hesiod_domain)
-        records.append(DNSRecord(fqdn, passwd_line))
+        records.append(DNSRecord(fqdn.lower(), passwd_line))
 
         # gid record
         fqdn = "%s.gid.%s" % (self.gid, hesiod_domain)
-        records.append(DNSRecord(fqdn, passwd_line))
+        records.append(DNSRecord(fqdn.lower(), passwd_line))
 
         return records
 
@@ -109,31 +109,31 @@ class User(object):
         records = []
         # user record
         fqdn = "%s.passwd.%s" % (self.username, hesiod_domain)
-        records.append(DNSRecord(fqdn, self.passwd_line()))
+        records.append(DNSRecord(fqdn.lower(), self.passwd_line()))
 
         # uid record
         fqdn = "%s.uid.%s" % (self.uid, hesiod_domain)
-        records.append(DNSRecord(fqdn, self.passwd_line()))
+        records.append(DNSRecord(fqdn.lower(), self.passwd_line()))
 
         # group list record
         gl = []
         for group in sorted(self.groups, key=lambda g: g.gid):
             gl.append("%s:%s" % (group.name, group.gid))
         fqdn = "%s.grplist.%s" % (self.username, hesiod_domain)
-        records.append(DNSRecord(fqdn, ":".join(gl)))
+        records.append(DNSRecord(fqdn.lower(), ":".join(gl)))
 
         # ssh records
         if self.ssh_keys:
             ssh_keys_count_fqdn = "%s.count.ssh.%s" % (self.username, hesiod_domain)
-            records.append(DNSRecord(ssh_keys_count_fqdn, str(len(self.ssh_keys))))
+            records.append(DNSRecord(ssh_keys_count_fqdn.lower(), str(len(self.ssh_keys))))
 
             # Need to keep this around for backwards compatibility when only one ssh key worked
             legacy_ssh_key_fqdn = "%s.ssh.%s" % (self.username, hesiod_domain)
-            records.append(DNSRecord(legacy_ssh_key_fqdn, self.ssh_keys[0]))
+            records.append(DNSRecord(legacy_ssh_key_fqdn.lower(), self.ssh_keys[0]))
 
             for _id, ssh_key in enumerate(self.ssh_keys):
                 ssh_key_fqdn = "%s.%s.ssh.%s" % (self.username, _id, hesiod_domain)
-                records.append(DNSRecord(ssh_key_fqdn, ssh_key))
+                records.append(DNSRecord(ssh_key_fqdn.lower(), ssh_key))
         return records
 
     def passwd_line(self):
@@ -272,7 +272,7 @@ def txt_value(value):
 
 def load_data(filename):
     with open(filename, "r") as f:
-        contents = yaml.load(f)
+        contents = yaml.load(f, Loader=yaml.FullLoader)
 
         route53_zone = contents["route53_zone"]
         hesiod_domain = contents["hesiod_domain"]
