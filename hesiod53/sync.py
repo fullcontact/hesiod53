@@ -267,7 +267,6 @@ def commit_changes(changes, conn):
 # Make chunks
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst."""
-    #print lst
     lst=list(lst)
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
