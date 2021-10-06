@@ -238,8 +238,6 @@ def sync(users, groups, route53_zone, hesiod_domain, dry_run):
         return
     for record_chunk in list(chunks(to_remove, 50)):
         changes = ResourceRecordSets(conn, zones[route53_zone])
-
-        print record_chunk
         for record in record_chunk:
             removal = changes.add_change("DELETE", record.fqdn, record_type, ttl)
             removal.add_value(txt_value(record.value))
