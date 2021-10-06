@@ -236,17 +236,25 @@ def sync(users, groups, route53_zone, hesiod_domain, dry_run):
     # stop if nothing to do
     if not to_remove and not to_add:
         return
+    for record_chunk in list(chunks(to_remove, 50)):
+        changes = ResourceRecordSets(conn, zones[route53_zone])
 
-    changes = ResourceRecordSets(conn, zones[route53_zone])
+        print record_chunk
+        for record in record_chunk:
+            removal = changes.add_change("DELETE", record.fqdn, record_type, ttl)
+            removal.add_value(txt_value(record.value))
+        commit_changes(changes, conn)
 
-    for record in to_remove:
-        removal = changes.add_change("DELETE", record.fqdn, record_type, ttl)
-        removal.add_value(txt_value(record.value))
+    for record_chunk in list(chunks(to_add, 50)):
+        changes = ResourceRecordSets(conn, zones[route53_zone])
+        for record in record_chunk:
+            addition = changes.add_change("CREATE", record.fqdn, record_type, ttl)
+            addition.add_value(txt_value(record.value))
+        commit_changes(changes, conn)
 
-    for record in to_add:
-        addition = changes.add_change("CREATE", record.fqdn, record_type, ttl)
-        addition.add_value(txt_value(record.value))
-
+# Commit Changes
+def commit_changes(changes, conn):
+    print "Commiting changes", changes
     try:
         result = changes.commit()
         status = Status(conn, result["ChangeResourceRecordSetsResponse"]["ChangeInfo"])
@@ -257,6 +265,14 @@ def sync(users, groups, route53_zone, hesiod_domain, dry_run):
         print "Waiting for Route53 to propagate changes."
         time.sleep(10)
         print status.update()
+
+# Make chunks
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    #print lst
+    lst=list(lst)
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
 
 # DNS text values are limited to chunks of 255, but multiple chunks are concatenated
 # Amazon handles this by requiring you to add quotation marks around each chunk
