@@ -14,7 +14,7 @@ def fetch_ssh_keys(username, hesiod_domain, tries=3):
         dns_resolver = dns.resolver.Resolver()
         answers = dns_resolver.resolve(fqdn, "TXT", tcp=True)
         for rdata in answers:
-            results.append("".join(rdata.to_text().strip('"')))
+            results.append(''.join(rdata.to_text()).replace('" "','').replace('"',''))
     except:
         # retry, in case of dns failure
         if tries > 1:
